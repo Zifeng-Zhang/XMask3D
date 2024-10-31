@@ -1,0 +1,90 @@
+DATA:
+  data_root: data/scannet_3d_
+  data_root_2d: data/scannet_2d_
+  caption_path: data/caption/caption_view_scannet_vit-gpt2-image-captioning_.json
+  category_split: 
+    novel_category: [ 3, 4, 6, 9, 10, 17, 18 ]
+    ignore_category: [19, 20]
+    base_category: [ 0, 1, 2, 5, 7, 8, 11, 12, 13, 14, 15, 16 ]
+    all_category: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+  all_label: ['wall','floor','cabinet','bed','chair','sofa','table','door','window','bookshelf','picture','counter','desk',
+  'curtain','refrigerator','shower curtain','toilet','sink','bathtub']
+  label: ['wall', 'floor', 'cabinet', 'sofa', 'door', 'window', 'counter', 'desk', 'curtain', 'refrigerator', 'shower curtain', 'toilet']
+
+  label_2d: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 24, 28, 33, 34, 36, 39]
+
+  test_ignore_label: [19,20]
+  ignore_label: 12
+  data_ratio: 0.583
+
+  classes: 12
+  test_classes: 19
+  num_queries: 50
+  scannet200: False
+
+  pixel_mean: [0.0, 0.0, 0.0]
+  pixel_std: [255.0, 255.0, 255.0]
+  
+  aug: False
+  voxel_size: 0.02
+  input_color: True 
+  use_shm: False
+  loop: 16
+  val_keep: 65000
+  
+Model:
+  arch_3d: MinkUNet34C
+  arch_binary_head: MinkUNet18A
+  
+  start_contra: 50
+  binary_2d_thresh: 0.5
+  scores_keep_thresh: 0
+
+  lr_3d: 0.001 
+  lr_others: 0.0001
+
+  loss_weight:
+    loss_3d: 4
+    loss_3d_pure: 4
+    loss_3d_contra: 0.5
+    loss_explicit_contra: 1.5
+    loss_explicit_contra_3d: 1
+    loss_explicit_contra_2d_pre: 4
+    loss_binary: 12
+
+  mask_contra_3d: True
+  caption_contra: True
+  caption_contra_2d_pre: True
+  caption_contra_3d: True
+
+  mask_shape: [240,320]
+
+  power: 0.9
+  momentum: 0.9
+  manual_seed: 5557 
+  print_freq: 10
+  save_freq: 1
+  eval_freq: 1
+  base_ratio: 0.65
+  novel_ratio: 0.35
+  clip_name: "ViT-L-14"
+  learning_rate_type: cosine
+
+Distributed:
+  save_path:
+  resume:
+  dist_url: tcp://127.0.0.1:6745
+  dist_backend: 'nccl'
+  multiprocessing_distributed: True
+  world_size: 1
+  rank: 0
+  train_gpu: [0,1,2,3,4,5,6,7]
+  workers: 8  
+  batch_size: 8  
+  batch_size_val: 8 
+  evaluate: True  
+  train_s: False 
+  epochs: 150
+  start_epoch: 0
+
