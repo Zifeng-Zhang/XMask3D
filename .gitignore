@@ -10,6 +10,7 @@ sd_model
 __pycache__
 test.py
 *.pth
+LICENSE
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 # Byte-compiled / optimized / DLL files
