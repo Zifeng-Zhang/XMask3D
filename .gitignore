@@ -144,3 +144,4 @@ initmodel
 
 !third_party/
 !third_party/**
+!fig/
