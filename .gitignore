@@ -143,5 +143,4 @@ out
 initmodel
 
 !third_party/
-!third_party/Mask2Former/build
 !third_party/**

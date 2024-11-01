@@ -1,0 +1,4 @@
+# ninja log v5
+0	5473	1730449911297841996	/remote-home/wzy/workspace_wyb/xmask3d/third_party/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.o	e5b48a74e99c1b4
+1	19351	1730449925180257441	/remote-home/wzy/workspace_wyb/xmask3d/third_party/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/vision.o	98e38d8fb04db570
+1	20061	1730449925859655607	/remote-home/wzy/workspace_wyb/xmask3d/third_party/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.o	53bd141ad4261c67
