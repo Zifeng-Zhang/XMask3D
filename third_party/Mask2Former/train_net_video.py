@@ -1,14 +1,14 @@
+# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 """
 MaskFormer Training Script.
 
 This script is a simplified version of the training script in detectron2/tools.
 """
 try:
-
+    # ignore ShapelyDeprecationWarning from fvcore
     from shapely.errors import ShapelyDeprecationWarning
     import warnings
-
-    warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
+    warnings.filterwarnings('ignore', category=ShapelyDeprecationWarning)
 except:
     pass
 
@@ -42,7 +42,7 @@ from detectron2.projects.deeplab import add_deeplab_config, build_lr_scheduler
 from detectron2.solver.build import maybe_add_gradient_clipping
 from detectron2.utils.logger import setup_logger
 
-
+# MaskFormer
 from mask2former import add_maskformer2_config
 from mask2former_video import (
     YTVISDatasetMapper,
@@ -81,9 +81,7 @@ class Trainer(DefaultTrainer):
         dataset_dict = get_detection_dataset_dicts(
             dataset_name,
             filter_empty=cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS,
-            proposal_files=cfg.DATASETS.PROPOSAL_FILES_TRAIN
-            if cfg.MODEL.LOAD_PROPOSALS
-            else None,
+            proposal_files=cfg.DATASETS.PROPOSAL_FILES_TRAIN if cfg.MODEL.LOAD_PROPOSALS else None,
         )
 
         return build_detection_train_loader(cfg, mapper=mapper, dataset=dataset_dict)
@@ -116,6 +114,7 @@ class Trainer(DefaultTrainer):
             torch.nn.BatchNorm2d,
             torch.nn.BatchNorm3d,
             torch.nn.SyncBatchNorm,
+            # NaiveSyncBatchNorm inherits from BatchNorm2d
             torch.nn.GroupNorm,
             torch.nn.InstanceNorm1d,
             torch.nn.InstanceNorm2d,
@@ -130,16 +129,14 @@ class Trainer(DefaultTrainer):
             for module_param_name, value in module.named_parameters(recurse=False):
                 if not value.requires_grad:
                     continue
-
+                # Avoid duplicating parameters
                 if value in memo:
                     continue
                 memo.add(value)
 
                 hyperparams = copy.copy(defaults)
                 if "backbone" in module_name:
-                    hyperparams["lr"] = (
-                        hyperparams["lr"] * cfg.SOLVER.BACKBONE_MULTIPLIER
-                    )
+                    hyperparams["lr"] = hyperparams["lr"] * cfg.SOLVER.BACKBONE_MULTIPLIER
                 if (
                     "relative_position_bias_table" in module_param_name
                     or "absolute_pos_embed" in module_param_name
@@ -153,7 +150,7 @@ class Trainer(DefaultTrainer):
                 params.append({"params": [value], **hyperparams})
 
         def maybe_add_full_model_gradient_clipping(optim):
-
+            # detectron2 doesn't have full model gradient clipping now
             clip_norm_val = cfg.SOLVER.CLIP_GRADIENTS.CLIP_VALUE
             enable = (
                 cfg.SOLVER.CLIP_GRADIENTS.ENABLED
@@ -163,9 +160,7 @@ class Trainer(DefaultTrainer):
 
             class FullModelGradientClippingOptimizer(optim):
                 def step(self, closure=None):
-                    all_params = itertools.chain(
-                        *[x["params"] for x in self.param_groups]
-                    )
+                    all_params = itertools.chain(*[x["params"] for x in self.param_groups])
                     torch.nn.utils.clip_grad_norm_(all_params, clip_norm_val)
                     super().step(closure=closure)
 
@@ -201,7 +196,6 @@ class Trainer(DefaultTrainer):
             dict: a dict of result metrics
         """
         from torch.cuda.amp import autocast
-
         logger = logging.getLogger(__name__)
         if isinstance(evaluators, DatasetEvaluator):
             evaluators = [evaluators]
@@ -213,7 +207,8 @@ class Trainer(DefaultTrainer):
         results = OrderedDict()
         for idx, dataset_name in enumerate(cfg.DATASETS.TEST):
             data_loader = cls.build_test_loader(cfg, dataset_name)
-
+            # When evaluators are passed in as arguments,
+            # implicitly assume that evaluators can be created before data_loader.
             if evaluators is not None:
                 evaluator = evaluators[idx]
             else:
@@ -235,9 +230,7 @@ class Trainer(DefaultTrainer):
                 ), "Evaluator must return a dict on the main process. Got {} instead.".format(
                     results_i
                 )
-                logger.info(
-                    "Evaluation results for {} in csv format:".format(dataset_name)
-                )
+                logger.info("Evaluation results for {} in csv format:".format(dataset_name))
                 print_csv_format(results_i)
 
         if len(results) == 1:
@@ -250,7 +243,7 @@ def setup(args):
     Create configs and perform basic setups.
     """
     cfg = get_cfg()
-
+    # for poly lr schedule
     add_deeplab_config(cfg)
     add_maskformer2_config(cfg)
     add_maskformer2_video_config(cfg)
@@ -258,13 +251,9 @@ def setup(args):
     cfg.merge_from_list(args.opts)
     cfg.freeze()
     default_setup(cfg, args)
-
+    # Setup logger for "mask_former" module
     setup_logger(name="mask2former")
-    setup_logger(
-        output=cfg.OUTPUT_DIR,
-        distributed_rank=comm.get_rank(),
-        name="mask2former_video",
-    )
+    setup_logger(output=cfg.OUTPUT_DIR, distributed_rank=comm.get_rank(), name="mask2former_video")
     return cfg
 
 

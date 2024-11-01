@@ -32,20 +32,18 @@ def main():
     else:
         get_boundary = False
     cocoGt = COCO(annFile, get_boundary=get_boundary, dilation_ratio=dilation_ratio)
-
+    
     # remove box predictions
     resFile = json.load(open(resFile))
     for c in resFile:
         c.pop("bbox", None)
 
     cocoDt = cocoGt.loadRes(resFile)
-    cocoEval = COCOeval(
-        cocoGt, cocoDt, iouType=args.iou_type, dilation_ratio=dilation_ratio
-    )
+    cocoEval = COCOeval(cocoGt, cocoDt, iouType=args.iou_type, dilation_ratio=dilation_ratio)
     cocoEval.evaluate()
     cocoEval.accumulate()
     cocoEval.summarize()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,12 +1,9 @@
 data
-detectron2
-nlpconnect*
 out
 demo
 openai
-detectron2
 sd_model
-*/MinkowskiEngine
+MinkowskiEngine
 __pycache__
 test.py
 *.pth
@@ -144,3 +141,6 @@ dmypy.json
 out
 3rdParty
 initmodel
+
+!third_party/
+!third_party/**

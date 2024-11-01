@@ -59,9 +59,7 @@ class VisualizationDemo(object):
         total_vis_output = []
         for frame_idx in range(len(frames)):
             frame = frames[frame_idx][:, :, ::-1]
-            visualizer = TrackVisualizer(
-                frame, self.metadata, instance_mode=self.instance_mode
-            )
+            visualizer = TrackVisualizer(frame, self.metadata, instance_mode=self.instance_mode)
             ins = Instances(image_size)
             if len(pred_scores) > 0:
                 ins.scores = pred_scores
@@ -94,7 +92,6 @@ class VideoPredictor(DefaultPredictor):
         inputs = cv2.imread("input.jpg")
         outputs = pred(inputs)
     """
-
     def __call__(self, frames):
         """
         Args:
@@ -112,9 +109,7 @@ class VideoPredictor(DefaultPredictor):
                     # whether the model expects BGR inputs or RGB
                     original_image = original_image[:, :, ::-1]
                 height, width = original_image.shape[:2]
-                image = self.aug.get_transform(original_image).apply_image(
-                    original_image
-                )
+                image = self.aug.get_transform(original_image).apply_image(original_image)
                 image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
                 input_frames.append(image)
 

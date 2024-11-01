@@ -71,7 +71,9 @@ def filter_images_with_only_crowd_annotations(dataset_dicts, dataset_names):
     return dataset_dicts
 
 
-def get_detection_dataset_dicts(dataset_names, filter_empty=True, proposal_files=None):
+def get_detection_dataset_dicts(
+    dataset_names, filter_empty=True, proposal_files=None
+):
     """
     Load and prepare dataset dicts for instance detection/segmentation and semantic segmentation.
 
@@ -103,13 +105,9 @@ def get_detection_dataset_dicts(dataset_names, filter_empty=True, proposal_files
 
     has_instances = "annotations" in dataset_dicts[0]
     if filter_empty and has_instances:
-        dataset_dicts = filter_images_with_only_crowd_annotations(
-            dataset_dicts, dataset_names
-        )
+        dataset_dicts = filter_images_with_only_crowd_annotations(dataset_dicts, dataset_names)
 
-    assert len(dataset_dicts), "No valid data found in {}.".format(
-        ",".join(dataset_names)
-    )
+    assert len(dataset_dicts), "No valid data found in {}.".format(",".join(dataset_names))
     return dataset_dicts
 
 
@@ -118,9 +116,7 @@ def _train_loader_from_config(cfg, mapper, *, dataset=None, sampler=None):
         dataset = get_detection_dataset_dicts(
             cfg.DATASETS.TRAIN,
             filter_empty=cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS,
-            proposal_files=cfg.DATASETS.PROPOSAL_FILES_TRAIN
-            if cfg.MODEL.LOAD_PROPOSALS
-            else None,
+            proposal_files=cfg.DATASETS.PROPOSAL_FILES_TRAIN if cfg.MODEL.LOAD_PROPOSALS else None,
         )
 
     if mapper is None:
@@ -145,13 +141,7 @@ def _train_loader_from_config(cfg, mapper, *, dataset=None, sampler=None):
 # TODO can allow dataset as an iterable or IterableDataset to make this function more general
 @configurable(from_config=_train_loader_from_config)
 def build_detection_train_loader(
-    dataset,
-    *,
-    mapper,
-    sampler=None,
-    total_batch_size,
-    aspect_ratio_grouping=True,
-    num_workers=0
+    dataset, *, mapper, sampler=None, total_batch_size, aspect_ratio_grouping=True, num_workers=0
 ):
     """
     Build a dataloader for object detection with some default features.
@@ -205,20 +195,14 @@ def _test_loader_from_config(cfg, dataset_name, mapper=None):
         [dataset_name],
         filter_empty=False,
         proposal_files=[
-            cfg.DATASETS.PROPOSAL_FILES_TEST[
-                list(cfg.DATASETS.TEST).index(dataset_name)
-            ]
+            cfg.DATASETS.PROPOSAL_FILES_TEST[list(cfg.DATASETS.TEST).index(dataset_name)]
         ]
         if cfg.MODEL.LOAD_PROPOSALS
         else None,
     )
     if mapper is None:
         mapper = DatasetMapper(cfg, False)
-    return {
-        "dataset": dataset,
-        "mapper": mapper,
-        "num_workers": cfg.DATALOADER.NUM_WORKERS,
-    }
+    return {"dataset": dataset, "mapper": mapper, "num_workers": cfg.DATALOADER.NUM_WORKERS}
 
 
 @configurable(from_config=_test_loader_from_config)

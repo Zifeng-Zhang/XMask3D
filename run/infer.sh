@@ -28,5 +28,5 @@ do
     --config=${config} \
     save_path ${exp_dir} \
     resume ${model_dir}/${ckpt_dir} \
-    2>&1 | tee ${exp_dir}/infer-0.25-$element.log
+    2>&1 | tee ${exp_dir}/infer-$element.log
 done

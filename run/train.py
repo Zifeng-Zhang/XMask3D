@@ -12,6 +12,7 @@ import torch.optim
 import torch.utils.data
 import torch.multiprocessing as mp
 import torch.distributed as dist
+from tqdm import tqdm
 from tensorboardX import SummaryWriter
 import imageio
 from MinkowskiEngine import SparseTensor
@@ -30,7 +31,6 @@ from dataset.data_loader import (
     collation_fn,
 )
 from models.xmask3d import XMASK3d as Model
-from tqdm import tqdm
 from models.checkpoint import XMask3dCheckpointer
 import MinkowskiEngine as ME
 

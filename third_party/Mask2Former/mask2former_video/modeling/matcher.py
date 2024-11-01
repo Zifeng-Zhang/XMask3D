@@ -30,7 +30,9 @@ def batch_dice_loss(inputs: torch.Tensor, targets: torch.Tensor):
     return loss
 
 
-batch_dice_loss_jit = torch.jit.script(batch_dice_loss)  # type: torch.jit.ScriptModule
+batch_dice_loss_jit = torch.jit.script(
+    batch_dice_loss
+)  # type: torch.jit.ScriptModule
 
 
 def batch_sigmoid_ce_loss(inputs: torch.Tensor, targets: torch.Tensor):
@@ -73,13 +75,7 @@ class VideoHungarianMatcher(nn.Module):
     while the others are un-matched (and thus treated as non-objects).
     """
 
-    def __init__(
-        self,
-        cost_class: float = 1,
-        cost_mask: float = 1,
-        cost_dice: float = 1,
-        num_points: int = 0,
-    ):
+    def __init__(self, cost_class: float = 1, cost_mask: float = 1, cost_dice: float = 1, num_points: int = 0):
         """Creates the matcher
 
         Params:
@@ -92,9 +88,7 @@ class VideoHungarianMatcher(nn.Module):
         self.cost_mask = cost_mask
         self.cost_dice = cost_dice
 
-        assert (
-            cost_class != 0 or cost_mask != 0 or cost_dice != 0
-        ), "all costs cant be 0"
+        assert cost_class != 0 or cost_mask != 0 or cost_dice != 0, "all costs cant be 0"
 
         self.num_points = num_points
 
@@ -108,9 +102,7 @@ class VideoHungarianMatcher(nn.Module):
         # Iterate through batch size
         for b in range(bs):
 
-            out_prob = outputs["pred_logits"][b].softmax(
-                -1
-            )  # [num_queries, num_classes]
+            out_prob = outputs["pred_logits"][b].softmax(-1)  # [num_queries, num_classes]
             tgt_ids = targets[b]["labels"]
 
             # Compute the classification cost. Contrary to the loss, we don't use the NLL,
@@ -147,7 +139,7 @@ class VideoHungarianMatcher(nn.Module):
 
                 # Compute the dice loss betwen masks
                 cost_dice = batch_dice_loss_jit(out_mask, tgt_mask)
-
+            
             # Final cost matrix
             C = (
                 self.cost_mask * cost_mask
@@ -159,10 +151,7 @@ class VideoHungarianMatcher(nn.Module):
             indices.append(linear_sum_assignment(C))
 
         return [
-            (
-                torch.as_tensor(i, dtype=torch.int64),
-                torch.as_tensor(j, dtype=torch.int64),
-            )
+            (torch.as_tensor(i, dtype=torch.int64), torch.as_tensor(j, dtype=torch.int64))
             for i, j in indices
         ]
 

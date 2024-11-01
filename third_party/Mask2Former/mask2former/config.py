@@ -91,9 +91,7 @@ def add_maskformer2_config(cfg):
 
     # NOTE: maskformer2 extra configs
     # transformer module
-    cfg.MODEL.MASK_FORMER.TRANSFORMER_DECODER_NAME = (
-        "MultiScaleMaskedTransformerDecoder"
-    )
+    cfg.MODEL.MASK_FORMER.TRANSFORMER_DECODER_NAME = "MultiScaleMaskedTransformerDecoder"
 
     # LSJ aug
     cfg.INPUT.IMAGE_SIZE = 1024
@@ -101,11 +99,7 @@ def add_maskformer2_config(cfg):
     cfg.INPUT.MAX_SCALE = 2.0
 
     # MSDeformAttn encoder configs
-    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_IN_FEATURES = [
-        "res3",
-        "res4",
-        "res5",
-    ]
+    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_IN_FEATURES = ["res3", "res4", "res5"]
     cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_N_POINTS = 4
     cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_N_HEADS = 8
 

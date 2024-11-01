@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (c) Facebook, Inc. and its affiliates.
 
 import glob
 import os
@@ -12,9 +13,7 @@ assert torch_ver >= [1, 8], "Requires PyTorch >= 1.8"
 
 
 def get_version():
-    init_py_path = path.join(
-        path.abspath(path.dirname(__file__)), "mask2former", "__init__.py"
-    )
+    init_py_path = path.join(path.abspath(path.dirname(__file__)), "mask2former", "__init__.py")
     init_py = open(init_py_path, "r").readlines()
     version_line = [l.strip() for l in init_py if l.startswith("__version__")][0]
     version = version_line.split("=")[-1].strip().strip("'\"")
@@ -25,16 +24,11 @@ def get_version():
 # Copied from Detectron2
 def get_extensions():
     # skip building
-    if (
-        not (os.environ.get("FORCE_CUDA") or torch.cuda.is_available())
-        or CUDA_HOME is None
-    ):
+    if not (os.environ.get("FORCE_CUDA") or torch.cuda.is_available()) or CUDA_HOME is None:
         return []
 
     this_dir = os.path.dirname(os.path.abspath(__file__))
-    extensions_dir = os.path.join(
-        this_dir, "mask2former/modeling/pixel_decoder/ops/src"
-    )
+    extensions_dir = os.path.join(this_dir, "mask2former/modeling/pixel_decoder/ops/src")
 
     main_file = glob.glob(os.path.join(extensions_dir, "*.cpp"))
     source_cpu = glob.glob(os.path.join(extensions_dir, "cpu", "*.cpp"))
@@ -46,9 +40,7 @@ def get_extensions():
     define_macros = []
 
     # Force cuda since torch ask for a device, not if cuda is in fact available.
-    if (
-        os.environ.get("FORCE_CUDA") or torch.cuda.is_available()
-    ) and CUDA_HOME is not None:
+    if (os.environ.get("FORCE_CUDA") or torch.cuda.is_available()) and CUDA_HOME is not None:
         extension = CUDAExtension
         sources += source_cuda
         define_macros += [("WITH_CUDA", None)]
@@ -85,7 +77,7 @@ def get_extensions():
 setup(
     name="mask2former",
     version=get_version(),
-    author="Bowen Cheng",  # Thanks Bowen!
+    author="Bowen Cheng", # Thanks Bowen! 
     url="https://github.com/facebook/mask2former",
     description="A pip installable version of mask2former",
     packages=find_packages(exclude=("configs", "tests*")),

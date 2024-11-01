@@ -142,9 +142,7 @@ def _get_ytvis_2021_instances_meta():
     return ret
 
 
-def load_ytvis_json(
-    json_file, image_root, dataset_name=None, extra_annotation_keys=None
-):
+def load_ytvis_json(json_file, image_root, dataset_name=None, extra_annotation_keys=None):
     from .ytvis_api.ytvos import YTVOS
 
     timer = Timer()
@@ -152,9 +150,7 @@ def load_ytvis_json(
     with contextlib.redirect_stdout(io.StringIO()):
         ytvis_api = YTVOS(json_file)
     if timer.seconds() > 1:
-        logger.info(
-            "Loading {} takes {:.2f} seconds.".format(json_file, timer.seconds())
-        )
+        logger.info("Loading {} takes {:.2f} seconds.".format(json_file, timer.seconds()))
 
     id_map = None
     if dataset_name is not None:
@@ -206,9 +202,7 @@ Category ids in annotations are not in [1, #categories]! We'll apply a mapping f
         )
 
     vids_anns = list(zip(vids, anns))
-    logger.info(
-        "Loaded {} videos in YTVIS format from {}".format(len(vids_anns), json_file)
-    )
+    logger.info("Loaded {} videos in YTVIS format from {}".format(len(vids_anns), json_file))
 
     dataset_dicts = []
 
@@ -218,10 +212,7 @@ Category ids in annotations are not in [1, #categories]! We'll apply a mapping f
 
     for (vid_dict, anno_dict_list) in vids_anns:
         record = {}
-        record["file_names"] = [
-            os.path.join(image_root, vid_dict["file_names"][i])
-            for i in range(vid_dict["length"])
-        ]
+        record["file_names"] = [os.path.join(image_root, vid_dict["file_names"][i]) for i in range(vid_dict["length"])]
         record["height"] = vid_dict["height"]
         record["width"] = vid_dict["width"]
         record["length"] = vid_dict["length"]
@@ -253,9 +244,7 @@ Category ids in annotations are not in [1, #categories]! We'll apply a mapping f
                         segm = mask_util.frPyObjects(segm, *segm["size"])
                 elif segm:
                     # filter out invalid polygons (< 3 points)
-                    segm = [
-                        poly for poly in segm if len(poly) % 2 == 0 and len(poly) >= 6
-                    ]
+                    segm = [poly for poly in segm if len(poly) % 2 == 0 and len(poly) >= 6]
                     if len(segm) == 0:
                         num_instances_without_valid_segmentation += 1
                         continue  # ignore this instance
@@ -315,7 +304,7 @@ if __name__ == "__main__":
     from PIL import Image
 
     logger = setup_logger(name=__name__)
-    # assert sys.argv[3] in DatasetCatalog.list()
+    #assert sys.argv[3] in DatasetCatalog.list()
     meta = MetadataCatalog.get("ytvis_2019_train")
 
     json_file = "./datasets/ytvis/instances_train_sub.json"
@@ -328,7 +317,6 @@ if __name__ == "__main__":
 
     def extract_frame_dic(dic, frame_idx):
         import copy
-
         frame_dic = copy.deepcopy(dic)
         annos = frame_dic.get("annotations", None)
         if annos:
@@ -337,11 +325,11 @@ if __name__ == "__main__":
         return frame_dic
 
     for d in dicts:
-        vid_name = d["file_names"][0].split("/")[-2]
+        vid_name = d["file_names"][0].split('/')[-2]
         os.makedirs(os.path.join(dirname, vid_name), exist_ok=True)
         for idx, file_name in enumerate(d["file_names"]):
             img = np.array(Image.open(file_name))
             visualizer = Visualizer(img, metadata=meta)
             vis = visualizer.draw_dataset_dict(extract_frame_dic(d, idx))
-            fpath = os.path.join(dirname, vid_name, file_name.split("/")[-1])
+            fpath = os.path.join(dirname, vid_name, file_name.split('/')[-1])
             vis.save(fpath)

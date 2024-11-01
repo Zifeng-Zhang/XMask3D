@@ -93,7 +93,7 @@ class ScannetLoaderFull(Point3DLoader):
             root_path = self.data_paths[index]
 
             scannet_200_label_path = root_path.replace(
-                "/scannet_3d_/", "/scannet_3d_200/instance_gt/"
+                "/scannet_3d/", "/scannet_3d_200/"
             )
             scannet_200_label_path = os.path.join(
                 os.path.dirname(scannet_200_label_path),

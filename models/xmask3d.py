@@ -489,17 +489,6 @@ class XMASK3d(nn.Module):
             return None, outputs
 
 
-class FeatureMerger(nn.Module):
-    def __init__(self, feature_dim):
-        super(FeatureMerger, self).__init__()
-        self.linear = nn.Linear(feature_dim * 2, feature_dim)
-
-    def forward(self, X, Y):
-        combined_features = torch.cat((X, Y), dim=1)
-        output = self.linear(combined_features)
-        return output
-
-
 class UNetFPN(nn.Module):
     def __init__(self, out_dim=256, ldm_prior=512):
         super().__init__()

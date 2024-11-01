@@ -149,13 +149,7 @@ if __name__ == "__main__":
 
             cap = cv2.VideoCapture(-1)
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-            out = cv2.VideoWriter(
-                os.path.join(args.output, "visualization.mp4"),
-                fourcc,
-                10.0,
-                (W, H),
-                True,
-            )
+            out = cv2.VideoWriter(os.path.join(args.output, "visualization.mp4"), fourcc, 10.0, (W, H), True)
             for _vis_output in visualized_output:
                 frame = _vis_output.get_image()[:, :, ::-1]
                 out.write(frame)
@@ -164,7 +158,7 @@ if __name__ == "__main__":
 
     elif args.video_input:
         video = cv2.VideoCapture(args.video_input)
-
+        
         vid_frames = []
         while video.isOpened():
             success, frame = video.read()
@@ -192,13 +186,7 @@ if __name__ == "__main__":
 
             cap = cv2.VideoCapture(-1)
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-            out = cv2.VideoWriter(
-                os.path.join(args.output, "visualization.mp4"),
-                fourcc,
-                10.0,
-                (W, H),
-                True,
-            )
+            out = cv2.VideoWriter(os.path.join(args.output, "visualization.mp4"), fourcc, 10.0, (W, H), True)
             for _vis_output in visualized_output:
                 frame = _vis_output.get_image()[:, :, ::-1]
                 out.write(frame)

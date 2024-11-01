@@ -1,6 +1,6 @@
 DATA:
-  data_root: data/scannet_3d_
-  data_root_2d: data/scannet_2d_
+  data_root: data/scannet_3d
+  data_root_2d: data/scannet_2d
   caption_path: data/caption/caption_view_scannet_vit-gpt2-image-captioning_.json
   category_split: 
     novel_category: [11, 22, 27, 30, 31, 39, 41, 43, 47, 56, 62, 64, 81, 87, 93, 95, 99, 102, 112, 114, 133, 134, 135, 144, 161, 170, 176, 179, 192, 199]
