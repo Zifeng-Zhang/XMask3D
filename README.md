@@ -62,13 +62,13 @@ sh run/resume.sh --exp_dir=out/exp_b15n4 --config=config/scannet/xmask3d_scannet
 ### Inference
 
 ```
-sh run/infer.sh --exp_dir=<experiment_directory> --config=<config_file> --ckpt_dir=<ckpt_name>
+sh run/infer.sh --exp_dir=<experiment_directory> --config=<config_file> --ckpt_name=<ckpt_name>
 ```
 
 - For example, to run inference using the checkpoint ```b15n4.pth.tar``` on the ScanNet B15N4 benchmark, execute the following command:
 
 ```
-sh run/infer.sh --exp_dir=out/exp_b15n4 --config=config/scannet/xmask3d_scannet_B15N4.yaml --ckpt_dir=b15n4.pth.tar
+sh run/infer.sh --exp_dir=out/exp_b15n4 --config=config/scannet/xmask3d_scannet_B15N4.yaml --ckpt_name=b15n4.pth.tar
 ```
 
 

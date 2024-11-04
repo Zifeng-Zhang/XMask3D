@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$#" -ne 3 ]; then
-    echo "Usage: sh run/infer.sh --exp_dir=EXP_DIR --config=CONFIG --ckpt_dir=CKPT_DIR"
+    echo "Usage: sh run/infer.sh --exp_dir=EXP_DIR --config=CONFIG --ckpt_name=CKPT_NAME"
     exit 1
 fi
 
@@ -15,8 +15,8 @@ for arg in "$@"; do
             config="${arg#*=}"
             shift
             ;;
-        --ckpt_dir=*)
-            ckpt_dir="${arg#*=}"
+        --ckpt_name=*)
+            ckpt_name="${arg#*=}"
             shift
             ;;
         *)
@@ -26,11 +26,11 @@ for arg in "$@"; do
     esac
 done
 
-echo "Current ckpt: $ckpt_dir"
+echo "Current ckpt: $ckpt_name"
 
 export PYTHONPATH=.
 python -u run/infer.py \
     --config="${config}" \
     save_path "${exp_dir}" \
-    resume "${exp_dir}/model/${ckpt_dir}" \
-    2>&1 | tee "${exp_dir}/infer-${ckpt_dir}.log"
+    resume "${exp_dir}/model/${ckpt_name}" \
+    2>&1 | tee "${exp_dir}/infer-${ckpt_name}.log"
