@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$#" -ne 3 ]; then
-    echo "Usage: sh run/infer.sh --exp_dir=EXP_DIR --config=CONFIG ckpt_dir=CKPT_DIR"
+    echo "Usage: sh run/infer.sh --exp_dir=EXP_DIR --config=CONFIG --ckpt_dir=CKPT_DIR"
     exit 1
 fi
 
