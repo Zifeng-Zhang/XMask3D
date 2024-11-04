@@ -27,7 +27,7 @@ sh scripts/download_datasets.sh
 ```bash
 # CLIP ViT-Large Patch14
 cd /path/to/your/workspace
-wget -O openai.tar.gz wget https://cloud.tsinghua.edu.cn/f/3890f1df1c5248a7a6e8/?dl=1
+wget -O openai.tar.gz https://cloud.tsinghua.edu.cn/f/3890f1df1c5248a7a6e8/?dl=1
 tar -xzvf openai.tar.gz
 # Stable Diffusion v1.3 Checkpoint
 wget -O st_model.tar.gz https://cloud.tsinghua.edu.cn/f/8dce9b137f574e6eb57c/?dl=1
