@@ -133,7 +133,8 @@ class XMask3dCheckpointer(Checkpointer):
         ret = {}
 
         checkpoint = torch.load(path, map_location=lambda storage, loc: storage.cuda())
-
+        # print(checkpoint.keys())
+        # awdaw
         ret["start_epoch"] = checkpoint["epoch"]
 
         checkpoints = checkpoint["state_dict"]

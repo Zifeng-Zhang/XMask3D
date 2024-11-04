@@ -1,9 +1,5 @@
-import glob
 import os
-import shutil
-from os import path
 from setuptools import find_packages, setup
-from typing import List
 import torch
 
 torch_ver = [int(x) for x in torch.__version__.split(".")[:2]]

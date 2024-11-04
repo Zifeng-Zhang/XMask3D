@@ -91,7 +91,7 @@ def main():
 
     args = get_parser()
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(str(x) for x in args.train_gpu)
+    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(str(x) for x in args.infer_gpu)
     cudnn.benchmark = True
     if args.manual_seed is not None:
 
@@ -108,7 +108,7 @@ def main():
 
     args.distributed = args.world_size > 1 or args.multiprocessing_distributed
 
-    args.ngpus_per_node = len(args.train_gpu)
+    args.ngpus_per_node = len(args.infer_gpu)
 
     if args.multiprocessing_distributed:
         args.world_size = args.ngpus_per_node * args.world_size
@@ -116,7 +116,7 @@ def main():
             main_worker, nprocs=args.ngpus_per_node, args=(args.ngpus_per_node, args)
         )
     else:
-        main_worker(args.train_gpu, args.ngpus_per_node, args)
+        main_worker(args.infer_gpu, args.ngpus_per_node, args)
 
 
 def main_worker(gpu, ngpus_per_node, argss):
@@ -163,9 +163,8 @@ def main_worker(gpu, ngpus_per_node, argss):
 
     if args.distributed:
         torch.cuda.set_device(gpu)
-        args.batch_size = int(args.batch_size / ngpus_per_node)
-        args.batch_size_val = int(args.batch_size_val / ngpus_per_node)
-        args.workers = int(args.workers / ngpus_per_node)
+        args.infer_batch_size_val = int(args.infer_batch_size_val / ngpus_per_node)
+        args.workers = int(args.infer_workers / ngpus_per_node)
         model = torch.nn.parallel.DistributedDataParallel(
             model.cuda(), device_ids=[gpu], find_unused_parameters=True
         )
@@ -223,9 +222,9 @@ def main_worker(gpu, ngpus_per_node, argss):
         )
         val_loader = torch.utils.data.DataLoader(
             val_data,
-            batch_size=args.batch_size_val,
+            batch_size=args.infer_batch_size_val,
             shuffle=False,
-            num_workers=args.workers,
+            num_workers=args.infer_workers,
             pin_memory=True,
             drop_last=False,
             collate_fn=collation_fn_eval_all_full,
@@ -233,7 +232,10 @@ def main_worker(gpu, ngpus_per_node, argss):
         )
 
     val_sampler.set_epoch(args.start_epoch)
-    assert args.batch_size_val == 1
+    try:
+        assert args.infer_batch_size_val == 1
+    except AssertionError:
+        print(f"Error: Expected infer_batch_size_val to be 1, but got {args.infer_batch_size_val}.")
 
     (
         mIoU_Base,

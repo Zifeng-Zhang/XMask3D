@@ -61,6 +61,7 @@ DATA:
   input_color: True 
   use_shm: False
   loop: 16
+  val_keep: 10000000
   
 Model:
   arch_3d: MinkUNet34C
@@ -108,10 +109,13 @@ Distributed:
   multiprocessing_distributed: True
   world_size: 1
   rank: 0
-  train_gpu: [0,1,2,3,4,5,6,7]
-  workers: 8  
+  train_gpu: [0,1,2,3]
+  workers: 4  
   batch_size: 64  
-  batch_size_val: 8  
+  batch_size_val: 4  
+  infer_gpu: [0,1,2,3,4,5,6,7]
+  infer_workers: 8  
+  infer_batch_size_val: 8  
   evaluate: True  
   train_s: True 
   epochs: 150
