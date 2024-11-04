@@ -39,7 +39,7 @@ tar -xzvf sd_model.tar.gz
 ### Training
 
 ```
-sh run/train.sh --exp_dir=<experiment_directory> --config=<config_file>
+sh run/train.sh --exp_dir=<EXPERIMENT_DIRECTORY> --config=<CONFIG_FILE>
 ```
 
 - For example, to train on the ScanNet B15N4 benchmark, run:
@@ -51,7 +51,7 @@ sh run/train.sh --exp_dir=out/exp_b15n4 --config=config/scannet/xmask3d_scannet_
 ### Resume
 
 ```
-sh run/resume.sh --exp_dir=<experiment_directory> --config=<config_file>
+sh run/resume.sh --exp_dir=<EXPERIMENT_DIRECTORY> --config=<CONFIG_FILE>
 ```
 
 - For example, to resume the last ckpt on the ScanNet B15N4 benchmark, run:
@@ -62,7 +62,7 @@ sh run/resume.sh --exp_dir=out/exp_b15n4 --config=config/scannet/xmask3d_scannet
 ### Inference
 
 ```
-sh run/infer.sh --exp_dir=<experiment_directory> --config=<config_file> --ckpt_name=<ckpt_name>
+sh run/infer.sh --exp_dir=<EXPERIMENT_DIRECTORY> --config=<CONFIG_FILE> --ckpt_name=<CKPT_NAME>
 ```
 
 - For example, to run inference using the checkpoint ```b15n4.pth.tar``` on the ScanNet B15N4 benchmark, execute the following command:
