@@ -14,7 +14,7 @@ then
     mkdir -p data
     cd data
     echo "Start downloading ..."
-    wget -O scannet_3d.tar.gz
+    wget -O scannet_3d.tar.gz https://cloud.tsinghua.edu.cn/f/9eb20ea4f218428ea928/?dl=1
     echo "Done! Start unzipping ..."
     tar -xzvf scannet_3d.tar.gz 
     echo "Done!"
@@ -24,7 +24,7 @@ then
     mkdir -p data
     cd data
     echo "Start downloading ..."
-    wget -O scannet_2d.tar.gz
+    wget -O scannet_2d.tar.gz https://cloud.tsinghua.edu.cn/f/64b0ce0e837f4f2c9f12/?dl=1
     echo "Done! Start unzipping ..."
     tar -xzvf scannet_2d.tar.gz
     echo "Done!"
