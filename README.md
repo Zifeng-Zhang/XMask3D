@@ -7,7 +7,7 @@ This repository is a pyTorch implementation of our NeurIPS 2024 paper **XMask3D*
 
 **XMask3D** is a framework for open vocabulary 3D semantic segmentation that improves fine-grained boundary delineation by aligning 3D features with a 2D-text embedding space at the mask level. Using a mask generator based on a pre-trained diffusion model, it enables precise textual control over dense pixel representations, enhancing the versatility of generated masks. By integrating 3D global features into a 2D denoising UNet, XMask3D adds 3D geometry awareness to mask generation. The resulting 2D masks align 3D representations with vision-language features, yielding competitive segmentation performance across benchmarks.
 
-[[arXiv]()]
+[[arXiv](https://arxiv.org/abs/2411.13243)]
 ![intro](fig/pipeline.jpg)
 
 
@@ -87,5 +87,10 @@ sh run/infer.sh --exp_dir=out/exp_b15n4 --config=config/scannet/xmask3d_scannet_
 If you find our work useful in your research, please consider citing:
 
 ```
-
+@article{wang2024xmask3d,
+  title={XMask3D: Cross-modal Mask Reasoning for Open Vocabulary 3D Semantic Segmentation},
+  author={Wang, Ziyi and Wang, Yanbo and Yu, Xumin and Zhou, Jie and Lu, Jiwen},
+  journal={arXiv preprint arXiv:2411.13243},
+  year={2024}
+}
 ```
