@@ -168,6 +168,7 @@ def main_worker(gpu, ngpus_per_node, argss):
         model = torch.nn.parallel.DistributedDataParallel(
             model.cuda(), device_ids=[gpu], find_unused_parameters=True
         )
+        assert args.infer_batch_size_val == 1, f"Expected batch size of 1 during inference, but got {args.batch_size_val}"
     else:
         model = model.cuda()
 
