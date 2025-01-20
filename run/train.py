@@ -178,9 +178,10 @@ def main_worker(gpu, ngpus_per_node, argss):
         model = torch.nn.parallel.DistributedDataParallel(
             model.cuda(), device_ids=[gpu], find_unused_parameters=True
         )
+        assert args.batch_size_val == 1, f"Expected batch size of 1 during validation, but got {args.batch_size_val}"
     else:
         model = model.cuda()
-
+    
     if args.batch_size < 4:
         model = ME.MinkowskiSyncBatchNorm.convert_sync_batchnorm(model)
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
