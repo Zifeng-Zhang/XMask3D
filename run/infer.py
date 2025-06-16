@@ -42,6 +42,11 @@ def get_parser():
     """"""
     parser = argparse.ArgumentParser(description="xmask3d.")
     parser.add_argument(
+        "--save_visualizations",
+        action="store_true",
+        help="Save point cloud visualizations"
+    )
+    parser.add_argument(
         "--config",
         type=str,
         default="config/scannet/xmask3d_scannet_infer_B12N7.yaml",
@@ -259,9 +264,78 @@ def get_model(cfg):
     return model
 
 
+def save_colored_point_cloud(points, labels, filename):
+    """
+    Save point cloud with colored labels as PLY file.
+
+    Args:
+        points: Tensor of point coordinates
+        labels: Tensor of point labels
+        filename: Output PLY filename
+    """
+    import numpy as np
+
+    SCANNET_COLOR_MAP_20 = {
+        0: (174., 199., 232.),  # wall
+        1: (152., 223., 138.),  # floor
+        2: (31., 119., 180.),  # cabinet
+        3: (255., 187., 120.),  # bed
+        4: (188., 189., 34.),  # chair
+        5: (140., 86., 75.),  # sofa
+        6: (255., 152., 150.),  # table
+        7: (214., 39., 40.),  # door
+        8: (197., 176., 213.),  # window
+        9: (148., 103., 189.),  # bookshelf
+        10: (196., 156., 148.),  # picture
+        11: (23., 190., 207.),  # counter
+        12: (247., 182., 210.),  # desk
+        13: (219., 219., 141.),  # curtain
+        14: (255., 127., 14.),  # refrigerator
+        15: (158., 218., 229.),  # shower curtain
+        16: (44., 160., 44.),  # toilet
+        17: (112., 128., 144.),  # sink
+        18: (227., 119., 194.),  # bathtub
+        19: (82., 84., 163.),  # other furniture
+        20: (0., 0., 0.),  # unlabelled / unknown
+    }
+
+    # Convert to numpy arrays
+    points_np = points.cpu().numpy()
+    labels_np = labels.cpu().numpy()
+
+    # Map labels to colors
+    colors = np.zeros((len(labels_np), 3))
+    for i, label in enumerate(labels_np):
+        if int(label) in SCANNET_COLOR_MAP_20:
+            colors[i] = SCANNET_COLOR_MAP_20[int(label)]
+        else:
+            colors[i] = SCANNET_COLOR_MAP_20[20]  # unknown label
+
+    # Create PLY file
+    with open(filename, 'w') as f:
+        f.write('ply\n')
+        f.write('format ascii 1.0\n')
+        f.write(f'element vertex {len(points_np)}\n')
+        f.write('property float x\n')
+        f.write('property float y\n')
+        f.write('property float z\n')
+        f.write('property uchar red\n')
+        f.write('property uchar green\n')
+        f.write('property uchar blue\n')
+        f.write('end_header\n')
+
+        for i in range(len(points_np)):
+            x, y, z = points_np[i]
+            r, g, b = colors[i]
+            r, g, b = int(r), int(g), int(b)
+            f.write(f'{x} {y} {z} {r} {g} {b}\n')
+
+    if main_process():
+        print(f"Saved colored point cloud to {filename}")
+
+
 def validate(val_loader, model):
     """"""
-    ""
 
     torch.backends.cudnn.enabled = False
 
@@ -287,6 +361,12 @@ def validate(val_loader, model):
     target_meter_3d_Novel = AverageMeter()
 
     model.eval()
+
+    # Create point cloud visualization directory
+    vis_dir = os.path.join(args.save_path, "visualizations")
+    if main_process():
+        os.makedirs(vis_dir, exist_ok=True)
+        logger.info(f"Saving visualizations to {vis_dir}")
 
     torch.rand(1)
     np.random.rand(1)
@@ -576,6 +656,26 @@ def validate(val_loader, model):
             true_idx = torch.where(counter != 0)[0]
 
             _, scene_pred = torch.max(scene_pred, dim=1)
+            # After this point, scene_coords contains your point cloud and scene_pred contains your labels
+            # Get scene name
+            scene_name = f"scene_{i:04d}"
+            if hasattr(val_loader.dataset, 'data_paths') and i < len(val_loader.dataset.data_paths):
+                scene_path = val_loader.dataset.data_paths[i]
+                scene_name = os.path.basename(scene_path).split('.')[0]
+
+            # Save predictions
+            if main_process():
+                gt_file = os.path.join(vis_dir, f"{scene_name}_gt.ply")
+                pred_file = os.path.join(vis_dir, f"{scene_name}_pred.ply")
+
+                # Save ground truth
+                save_colored_point_cloud(scene_coords, scene_label, gt_file)
+
+                # Save prediction
+                save_colored_point_cloud(scene_coords, scene_pred, pred_file)
+
+                logger.info(f"Saved visualization for scene {scene_name} ({i + 1}/{len(val_loader)})")
+            # Saving ends
 
             kdtree = KDTree(scene_true)
 

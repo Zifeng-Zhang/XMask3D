@@ -44,43 +44,100 @@ class PointCloudToImageMapper(object):
         self.intrinsics = intrinsics
 
     def compute_mapping(self, camera_to_world, coords, depth=None, intrinsic=None):
+        """
+        Modified compute_mapping function with proper handling of array dimensions
 
+        Args:
+            camera_to_world: Camera extrinsic matrix [4x4]
+            coords: Point cloud coordinates [Nx3]
+            depth: Depth image [HxW]
+            intrinsic: Camera intrinsic matrix [3x3]
+
+        Returns:
+            mapping: Mapping between 3D points and 2D pixels [Nx3]
+        """
         if self.intrinsics is not None:
             intrinsic = self.intrinsics
 
+        # Initialize mapping array
         mapping = np.zeros((3, coords.shape[0]), dtype=int)
+
+        # Convert to homogeneous coordinates
         coords_new = np.concatenate([coords, np.ones([coords.shape[0], 1])], axis=1).T
         assert coords_new.shape[0] == 4, "[!] Shape error"
 
+        # Transform points to camera space
         world_to_camera = np.linalg.inv(camera_to_world)
         p = np.matmul(world_to_camera, coords_new)
-        p[0] = (p[0] * intrinsic[0][0]) / p[2] + intrinsic[0][2]
-        p[1] = (p[1] * intrinsic[1][1]) / p[2] + intrinsic[1][2]
 
-        pi = np.round(p).astype(int)
+        # Convert 3D points to 2D pixel coordinates using the intrinsic matrix
+        # Avoid division by zero by creating a safe divider
+        safe_z = p[2].copy()
+        safe_z[np.abs(safe_z) < 1e-8] = 1.0  # Avoid division by zero
 
+        px = (p[0] * intrinsic[0][0]) / safe_z + intrinsic[0][2]
+        py = (p[1] * intrinsic[1][1]) / safe_z + intrinsic[1][2]
+
+        # Round to integer pixel coordinates
+        pi_x = np.round(px).astype(int)
+        pi_y = np.round(py).astype(int)
+
+        # Create basic mask for points in front of camera with valid z
+        front_mask = p[2] > 0
+
+        # Check if pixels are within image bounds
         inside_mask = (
-            (pi[0] >= self.cut_bound)
-            * (pi[1] >= self.cut_bound)
-            * (pi[0] < self.image_dim[0] - self.cut_bound)
-            * (pi[1] < self.image_dim[1] - self.cut_bound)
+                front_mask &
+                (pi_x >= self.cut_bound) &
+                (pi_y >= self.cut_bound) &
+                (pi_x < self.image_dim[0] - self.cut_bound) &
+                (pi_y < self.image_dim[1] - self.cut_bound)
         )
-        if depth is not None:
-            depth_cur = depth[pi[1][inside_mask], pi[0][inside_mask]]
-            occlusion_mask = (
-                np.abs(
-                    depth[pi[1][inside_mask], pi[0][inside_mask]] - p[2][inside_mask]
-                )
-                <= self.vis_thres * depth_cur
+
+        # Handle depth check if depth map is provided
+        if depth is not None and np.any(inside_mask):
+            # Get pixel coordinates for valid points
+            valid_y = pi_y[inside_mask]
+            valid_x = pi_x[inside_mask]
+            valid_z = p[2][inside_mask]
+
+            # Ensure pixel coordinates are within depth map bounds
+            valid_coords = (
+                    (valid_y >= 0) &
+                    (valid_y < depth.shape[0]) &
+                    (valid_x >= 0) &
+                    (valid_x < depth.shape[1])
             )
 
-            inside_mask[inside_mask == True] = occlusion_mask
-        else:
-            front_mask = p[2] > 0
-            inside_mask = front_mask * inside_mask
-        mapping[0][inside_mask] = pi[1][inside_mask]
-        mapping[1][inside_mask] = pi[0][inside_mask]
-        mapping[2][inside_mask] = 1
+            # Initialize occlusion mask with False (will be updated for valid points)
+            occlusion_mask = np.zeros_like(inside_mask)
+
+            if np.any(valid_coords):
+                # Extract depth values only for valid coordinates
+                filtered_y = valid_y[valid_coords]
+                filtered_x = valid_x[valid_coords]
+                filtered_z = valid_z[valid_coords]
+
+                # Get depth values at those pixel locations
+                depth_values = depth[filtered_y, filtered_x]
+
+                # Check occlusion with depth threshold
+                depth_check = np.abs(depth_values - filtered_z) <= self.vis_thres * depth_values
+
+                # Create indices for the original inside_mask that correspond to valid points
+                valid_indices = np.where(inside_mask)[0]
+                valid_indices = valid_indices[valid_coords]
+
+                # Update occlusion mask at the correct indices
+                occlusion_mask[valid_indices[depth_check]] = True
+
+                # Update inside_mask with occlusion check
+                inside_mask = occlusion_mask
+
+        # Set final mapping
+        mapping[0, inside_mask] = pi_y[inside_mask]
+        mapping[1, inside_mask] = pi_x[inside_mask]
+        mapping[2, inside_mask] = 1
 
         return mapping.T
 

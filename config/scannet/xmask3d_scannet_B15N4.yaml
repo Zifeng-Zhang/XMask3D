@@ -1,14 +1,14 @@
 DATA:
-  data_root: data/scannet_3d
-  data_root_2d: data/scannet_2d
+  data_root: /media/zzhang/xmask3d/data/scannet_3d
+  data_root_2d: /media/zzhang/xmask3d/data/scannet_2d
   caption_path: data/caption/caption_view_scannet_vit-gpt2-image-captioning_.json
-  category_split: 
+  category_split:
     novel_category: [5, 9, 12, 16]
     ignore_category: [19, 20]
     base_category: [0, 1, 2, 3, 4, 6, 7, 8, 10, 11, 13, 14, 15, 17, 18]
     all_category: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
-  
+
   all_label: ['wall','floor','cabinet','bed','chair','sofa','table','door','window','bookshelf','picture','counter','desk',
   'curtain','refrigerator','shower curtain','toilet','sink','bathtub']
   label: ['wall','floor','cabinet','bed','chair','table','door','window','picture','counter','curtain','refrigerator','shower curtain','sink','bathtub']
@@ -23,21 +23,21 @@ DATA:
   test_classes: 19
   num_queries: 50
   scannet200: False
-  
+
   pixel_mean: [0.0, 0.0, 0.0]
   pixel_std: [255.0, 255.0, 255.0]
 
   aug: False
   voxel_size: 0.02
-  input_color: True 
+  input_color: True
   use_shm: False
   loop: 16
   val_keep: 10000000
-  
+
 Model:
   arch_3d: MinkUNet34C
   arch_binary_head: MinkUNet18A
-  
+
   start_contra: 50
   binary_2d_thresh: 0.5
   scores_keep_thresh: 0
@@ -63,7 +63,7 @@ Model:
 
   power: 0.9
   momentum: 0.9
-  manual_seed: 5557 
+  manual_seed: 5557
   print_freq: 10
   save_freq: 1
   eval_freq: 1
@@ -80,14 +80,14 @@ Distributed:
   multiprocessing_distributed: True
   world_size: 1
   rank: 0
-  train_gpu: [0,1,2,3]
-  workers: 4  
-  batch_size: 64  
-  batch_size_val: 4  
-  infer_gpu: [0,1,2,3,4,5,6,7]
-  infer_workers: 8  
-  infer_batch_size_val: 8  
-  evaluate: True  
-  train_s: True 
+  train_gpu: [0]
+  workers: 4
+  batch_size: 64
+  batch_size_val: 4
+  infer_gpu: [0]
+  infer_workers: 4
+  infer_batch_size_val: 1
+  evaluate: True
+  train_s: True
   epochs: 150
   start_epoch: 0
