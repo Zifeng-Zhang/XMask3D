@@ -290,6 +290,7 @@ class ScannetLoaderFull(Point3DLoader):
         locs_in = torch.from_numpy(locs_in).float()
         labels_in = torch.from_numpy(labels_in).long()
         return (
+            scene_name,
             locs_in,
             labels_in,
             ori_locals_3d,
@@ -319,6 +320,7 @@ def collation_fn_eval_all_full(batch):
 
     """
     (
+        scenename,
         locs_in,
         labels_in,
         ori_locals_3d,
@@ -336,6 +338,7 @@ def collation_fn_eval_all_full(batch):
     ) = list(zip(*batch))
 
     return (
+        scenename[0],
         locs_in[0],
         labels_in[0],
         ori_locals_3d[0],

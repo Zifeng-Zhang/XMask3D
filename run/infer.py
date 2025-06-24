@@ -17,6 +17,7 @@ import imageio
 from MinkowskiEngine import SparseTensor
 from sklearn.neighbors import KDTree
 from util import config
+import sys
 from util.util import (
     AverageMeter,
     intersectionAndUnionGPU,
@@ -222,7 +223,7 @@ def main_worker(gpu, ngpus_per_node, argss):
             input_color=args.input_color,
         )
         val_sampler = (
-            torch.utils.data.distributed.DistributedSampler(val_data)
+            torch.utils.data.distributed.DistributedSampler(val_data, shuffle=False)
             if args.distributed
             else None
         )
@@ -373,6 +374,7 @@ def validate(val_loader, model):
     with torch.no_grad():
         for i, batch_data in enumerate(val_loader):
             (
+                scene_name,
                 scene_coords,
                 scene_label,
                 ori_coords_3ds,
@@ -637,8 +639,6 @@ def validate(val_loader, model):
 
                 logits_pred_2d = torch.max(logits_pred_2d, 1)[1].cpu()
 
-                ""
-
                 scene_pred[mask_2d, logits_pred] += 1
 
                 scene_pred_2d[mask_2d, logits_pred_2d] += 1
@@ -658,11 +658,13 @@ def validate(val_loader, model):
             _, scene_pred = torch.max(scene_pred, dim=1)
             # After this point, scene_coords contains your point cloud and scene_pred contains your labels
             # Get scene name
-            scene_name = f"scene_{i:04d}"
+            # scene_name = f"scene_{i:04d}"
             if hasattr(val_loader.dataset, 'data_paths') and i < len(val_loader.dataset.data_paths):
-                scene_path = val_loader.dataset.data_paths[i]
-                scene_name = os.path.basename(scene_path).split('.')[0]
-
+                scene_name += "_vh_clean_2"
+            else:
+                print("ERROR: data_paths attribute not found in dataset")
+                sys.exit(1)
+            
             # Save predictions
             if main_process():
                 gt_file = os.path.join(vis_dir, f"{scene_name}_gt.ply")
